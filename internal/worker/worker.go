@@ -33,11 +33,6 @@ func Start(id int) {
 		log.Printf("Worker-%d executing job ID=%d", id, jobID)
 		if jobID%2 == 0 {
 			log.Printf("Worker -%d failed job ID=%d", id, jobID)
-			if err := job.IncrementRetryCount(jobID); err != nil {
-				log.Println(err)
-				continue
-
-			}
 
 			if j.RetryCount >= 3 {
 				if err := job.UpdateStatus(jobID, "failed"); err != nil {
@@ -45,6 +40,11 @@ func Start(id int) {
 				}
 				log.Printf("Worker-%d permanently failed job ID=%d", id, jobID)
 				continue
+			}
+			if err := job.IncrementRetryCount(jobID); err != nil {
+				log.Println(err)
+				continue
+
 			}
 			time.Sleep(2 * time.Second)
 
@@ -67,3 +67,5 @@ func Start(id int) {
 
 	}
 }
+
+// For your project, I would leave it as is and mention this limitation in the README. Recognizing and explaining race conditions is something interviewers appreciate from a 3 YOE backend engineer. /🚀
