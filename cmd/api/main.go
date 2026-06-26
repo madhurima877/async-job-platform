@@ -68,6 +68,17 @@ func main() {
 	})
 
 	r.GET("/metrics", func(c *gin.Context) {
+		allow, err := queue.CheckAllowed("ratelimiter")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error: " + err.Error()})
+			return
+		}
+		if !allow {
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": "rate limit exceeded"})
+
+			return
+		}
+
 		m, err := job.GetMetrics()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -133,4 +144,34 @@ func main() {
 // 	val, _ := queue.GetValue("key")
 // 	log.Println(val, "data from redis")
 
+// }
+
+// func main() {
+// 	if err := queue.Connect(); err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	http.HandleFunc("/get", func(w http.ResponseWriter, r *http.Request) {
+// 		if r.Method != http.MethodGet {
+// 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// 			return
+// 		}
+
+// 		allow, err := queue.CheckAllowed("ratelimiter")
+// 		if err != nil {
+// 			http.Error(w, "internal server error: "+err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+
+// 		if !allow {
+// 			http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
+// 			return
+// 		}
+
+// 		w.Header().Set("Content-Type", "application/json")
+// 		w.Write([]byte(`{"result":"success"}`))
+// 	})
+
+// 	log.Println("listening")
+// 	log.Fatal(http.ListenAndServe(":8080", nil))
 // }
