@@ -102,3 +102,35 @@ func main() {
 	log.Println("Server exited")
 
 }
+
+// func main() {
+// 	var mu sync.Mutex
+// 	if err := queue.Connect(); err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	numjobs := 10
+// 	var wg sync.WaitGroup
+// 	sem := make(chan struct{}, 5)
+// 	queue.SetKey("key")
+// 	for i := 0; i < numjobs; i++ {
+// 		wg.Add(1)
+// 		sem <- struct{}{}
+// 		go func() {
+// 			defer wg.Done()
+// 			defer func() {
+// 				<-sem
+// 			}()
+// 			for i := 0; i <= 1000; i++ {
+// 				mu.Lock()
+// 				queue.Increment("key")
+// 				mu.Unlock()
+// 			}
+
+// 		}()
+
+// 	}
+// 	wg.Wait()
+// 	val, _ := queue.GetValue("key")
+// 	log.Println(val, "data from redis")
+
+// }
